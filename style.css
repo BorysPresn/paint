@@ -1,0 +1,95 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: rgba(255, 218, 185, 0.612);
+    font-family: cursive;
+}
+.header {
+    font-size: 32px;
+    text-align: center;
+    padding: 20px;
+}
+.choose-figure {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px;
+}
+
+.figures {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 20px;
+}
+.figure-item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.square label{
+    background-color: #59595930;
+    width: 100px;
+    height: 100px;
+}
+.triangle label{
+    width: 0;
+    height: 0;
+    border-left: 0px solid transparent;
+    border-right: 100px solid transparent;
+    border-bottom: 100px solid #59595930;
+}
+.round label{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #59595930;
+}
+.rhombus label{
+    width: 71px;
+    height: 71px;
+    transform: rotate(45deg);
+    background-color: #59595930;
+    margin-left: 12px;
+}
+.colors {
+}
+.color {
+}
+.white {
+}
+.black {
+}
+.red {
+}
+.green {
+}
+.orange {
+}
+.blue {
+}
+.lightblue {
+}
+.cyan {
+}
+.gray {
+}
+.lightgray {
+}
+.lightgreen {
+}
+.purple {
+}
