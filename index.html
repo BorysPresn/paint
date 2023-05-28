@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    
     <title>Paint</title>
 </head>
 <body>
@@ -14,7 +15,7 @@
         <div class="choose-figure">
             <div class="figures">
                 <div class="figure-item square">
-                    <input type="radio" name="radio" id="square">
+                    <input type="radio" name="radio" id="square" checked>
                     <label for="square"><img src=""></label>
                 </div>
                 <div class="figure-item triangle">
@@ -22,8 +23,8 @@
                     <label for="triangle"><img src=""></label>
                 </div>
                 <div class="figure-item round">
-                    <input type="radio" name="radio" id="round">
-                    <label for="round"><img src=""></label>
+                    <input type="radio" name="radio" id="circle">
+                    <label for="circle"><img src=""></label>
                 </div>
                 <div class="figure-item rhombus">
                     <input type="radio" name="radio" id="rhombus">
@@ -31,22 +32,184 @@
                 </div>
             </div>
             <div class="colors">
-                <div class="color white"></div>
-                <div class="color black"></div>
-                <div class="color red"></div>
-                <div class="color green"></div>
-                <div class="color orange"></div>
-                <div class="color blue"></div>
-                <div class="color lightblue"></div>
-                <div class="color cyan"></div>
-                <div class="color gray"></div>
-                <div class="color lightgray"></div>
-                <div class="color lightgreen"></div>
-                <div class="color purple"></div>
+                <div data-color="#ffffff" class="color white"></div>
+                <div data-color="#000000" class="color black"></div>
+                <div data-color="#ff0000" class="color red"></div>
+                <div data-color="#008000" class="color green"></div>
+                <div data-color="#ffa500" class="color orange"></div>
+                <div data-color="#0000ff" class="color blue"></div>
+                <div data-color="#ff0" class="color yellow"></div>
+                <div data-color="#00ffff" class="color cyan"></div>
+                <div data-color="#595959" class="color gray"></div>
+                <div data-color="#d3d3d3" class="color lightgray"></div>
+                <div data-color="#90ee90" class="color lightgreen"></div>
+                <div data-color="#800080" class="color purple"></div>
             </div>
         </div>
         <hr>
-        <canvas id="canvas"></canvas>
+        <div class="canvas-container">
+            <canvas id="canvas" width="1000px" height="400px"></canvas>
+        </div>
     </div>
+    <script>
+        let canvasContainer = document.querySelector('.canvas-container');
+        let canvas = document.querySelector('#canvas');
+        function setCanvasSize() {
+            let containerWidth = canvasContainer.offsetWidth;
+            let containerHeight = canvasContainer.offsetHeight;
+            canvas.width = containerWidth;
+            canvas.height = containerHeight;
+        }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+        
+        let activeColorBlock = null;
+        let fillColor = null;
+        document.querySelector('.colors').addEventListener('click', function(event){
+            let clickedBlock = event.target;
+            if(clickedBlock.classList.contains('color')){
+                if(activeColorBlock){
+                    activeColorBlock.classList.remove('active');
+                }
+                if(clickedBlock !== activeColorBlock){
+                    clickedBlock.classList.add('active');
+                    activeColorBlock = clickedBlock;
+                    fillColor = activeColorBlock.dataset.color;
+                } else {
+                    activeColorBlock = null;
+                    fillColor = '#59595930';
+                }
+            }
+        })
+
+        let isDrawing = false;
+        let startPosX, startPosY, currentX, currentY, figureType;
+        let ctx = canvas.getContext('2d');
+        let figures = [];
+        
+        canvas.addEventListener('mousedown', function(event){
+            isDrawing = true;
+            startPosX = event.layerX - canvas.getBoundingClientRect().left;
+            startPosY = event.layerY - canvas.getBoundingClientRect().top;
+        });
+            
+        canvas.addEventListener('mousemove', function(event){
+            if(isDrawing){
+                currentX = event.clientX - canvas.getBoundingClientRect().left;
+                currentY = event.clientY - canvas.getBoundingClientRect().top;
+                ctx.fillStyle = getColor();
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                drawFigures(); 
+
+                drawFigure(startPosX, startPosY, currentX, currentY, fillColor); 
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(event){
+            isDrawing = false;
+            figures.push({
+                type: figureType,
+                startX: startPosX,
+                startY: startPosY,
+                endX: currentX,
+                endY: currentY,
+                color: ctx.fillStyle
+            });
+        });
+
+        function drawFigure(x1, y1, x2, y2, color){
+            figureType = getFigure();
+            if(figureType === 'square'){
+                drawSquare(x1, y1, x2, y2, color);
+            }
+
+            if(figureType === 'triangle'){
+                drawTriangle(x1, y1, x2, y2,color);
+            }
+            if(figureType === 'circle'){
+                drawCircle(x1, y1, x2, y2, color);
+            }
+            if(figureType === 'rhombus'){
+                drawRhombus(x1, y1, x2, y2,color);
+            }
+        }
+
+        function drawFigures(){
+            figures.forEach(function(elem){
+                if(elem.type === 'square'){
+                    drawSquare(elem.startX, elem.startY, elem.endX, elem.endY, elem.color);
+                }
+                if(elem.type === 'triangle'){
+                    drawTriangle(elem.startX, elem.startY, elem.endX, elem.endY, elem.color);
+                }
+                if(elem.type === 'circle'){
+                    drawCircle(elem.startX, elem.startY, elem.endX, elem.endY, elem.color);
+                }
+                if(elem.type === 'rhombus'){
+                    drawRhombus(elem.startX, elem.startY, elem.endX, elem.endY, elem.color);
+                }
+            })
+        }
+
+        function drawSquare(x1, y1, x2, y2, color){
+            let {width, height} = getParams(x1, y1, x2, y2);
+            ctx.fillStyle = color
+            ctx.fillRect(x1, y1, width, height);
+        }
+
+        function drawTriangle(x1, y1, x2, y2, color){
+            ctx.beginPath();
+            ctx.moveTo(x1, y1); 
+            ctx.lineTo(x1, y2); 
+            ctx.lineTo(x2, y2); 
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawCircle(x1, y1, x2, y2, color){
+            let radius = Math.sqrt((x2 - x1)**2 + (y2 - y1) ** 2);
+            ctx.beginPath();
+            ctx.arc(x1, y1, radius, 0, 2 * Math.PI);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawRhombus(x1, y1, x2, y2, color){
+            let {width, height} = getParams(x1, y1, x2, y2);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x1 - width/2, y1 + height/2);
+            ctx.lineTo(x1, y2);
+            ctx.lineTo(x1 + width/2, y1 + height/2);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function getFigure(){
+            let res;
+            document.getElementsByName('radio').forEach((elem) =>{
+                if(elem.checked){
+                   res = elem.id;
+                }
+            });
+            return res;
+        }
+        
+        function getColor(){
+            let colorElem = document.querySelector('.active');
+            if(!colorElem) return  '#59595930';
+            else return colorElem.dataset.color;
+        }
+
+        function getParams(x1, y1 ,x2 ,y2){
+            let width = (x2 - x1);
+            let height = (y2 - y1);
+            return {width, height};
+        }
+    
+    </script>
 </body>
 </html>
